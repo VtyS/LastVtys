@@ -1,94 +1,115 @@
-<!doctype html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Dünya Fay Hattı Haritası</title>
-    <meta name="description" content="VtyS">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-
-    <link rel="stylesheet" href="lato/fontface.min.css">
-
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
-
-    <meta property="og:image" content="http://datateaser.github.io/west_east_faultline/fault.png" />
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=\, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+      integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+      integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+      crossorigin=""
+    ></script>
+		<script
+		  src="https://code.jquery.com/jquery-3.4.1.min.js"
+		  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+		  crossorigin="anonymous"></script>
 
     <style>
-        html {
-            position: relative;
-            min-height: 100%;
-        }
+      #map {
+        height: 400px;
+      }
+      .depremMarker {
+        background-color: transparent;
+        border: none;
 
-        body {
-            font-family: "latoregular", Helvetica, Arial;
-            margin-bottom: 60px;
-        }
+      }
 
-        #title {
-            font-size: 20px;
-        }
-
-        #map {
-            padding-top: 30px;
-        }
-
-        #logo {
-            height: 25px;
-        }
-
-        .social-media {
-            color: #888;
-        }
-
-        #header {
-            background-color: #09f;
-            padding: 10px;
-            color: #fff;
-        }
-
-        .footer {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            /* Set the fixed height of the footer here */
-            height: 100px;
-            padding-top: 20px;
-            background-color: #eee;
-        }
+      .markerTitle{
+        background-color:white;
+        color: #000;
+        word-wrap: none;
+        text-align: center;
+      }
     </style>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12" id="header">
-                <h1 id="title">Dünya Fay Hattı Haritası</h1>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-12" id="map">
-                <script src="https://gist.github.com/MojoJolo/a745e1f5ba87b6d5f81a.js?height=700&width=500"></script>
-            </div>
-        </div>
-        
-    </div>
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 text-left">
-                    <p><em>Data source from <a href="http://www.s1expeditions.com/2014/07/158-west-east-valley-fault-line.html">https://github.com/VtyS.com</a></em></p>
-                </div>
-                <div class="col-lg-6 text-right"> 
-                    Made by <a href="https://github.com/VtyS"><img id="logo" src="dt-logo-web.svg" alt="VtyS"></a>
-                    <br>
-                    <a href="https://github.com/VtyS" target="_blank"><i class="social-media fa fa-2x fa-github"></i></a>
-                </div>
-            </div>
-        </div>
-    </footer>
-</body>
+
+    <title>Türkiye Fay Hattı</title>
+  </head>
+  <body>
+    <h1>Türkiye Fay Hattı</h1>
+
+
+    <div id="map"></div>
+
+    <script>
+      
+      const mymap = L.map('map').setView([0, 0], 1);
+      const attribution =
+        '&copy; <a href=""></a> LeafLet Demo';
+
+      const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      const tiles = L.tileLayer(tileUrl, { attribution });
+      tiles.addTo(mymap);
+      var layerGroup = L.layerGroup().addTo(mymap);
+
+
+      mymap.setView([39, 34.90], 6); 
+
+      
+      const api_url = '';
+
+      async function getDepremler() {
+        console.log("Depremler listesi getiriliyor..");
+        const response = await fetch(api_url); //adrese git
+        const data = await response.json();//adresteki content'i json olarak al.
+        deletedepremler(); //harita üzerindeki markerları si
+        for (var i = 0 ; i < 20; i++) {//gelen verilerden 20 tanesini yaz
+          var d = data[i];
+          var lon = d.lon;
+          var lat = d.lat;
+          var time = d.time;
+          var mag = d.m;
+
+
+          var location = d.city + " " + d.district ;
+          
+          var other = d.other;
+
+          var name = location.trim().length > 3 ? location : other ;
+          //console.log(i + " : " + time +  " -- "+ long + " - "+ lat);
+
+          
+            const MarkerIcon = L.divIcon({
+              iconSize: [100, 50],
+               iconAnchor: [50, 50],
+              html : '<div class="markerTitle"><strong>'+mag+'</strong> - '+name+'</div><div style="text-align:center; width:100%;"><img src="pointer.png" /></div>',
+              className: 'depremMarker',
+            });
+
+            
+          let marker = L.marker([lat, lon], { icon: MarkerIcon ,title: name }).addTo(layerGroup);
+        }
+
+    
+        console.log("Markerlar oluşturuldu.");
+      }
+
+      getDepremler();
+
+      function deletedepremler () {
+        layerGroup.clearLayers();
+        console.log("Markerlar temizlendi.");
+      }
+
+      setInterval(getDepremler, 5000);
+
+
+    </script>
+  </body>
 </html>
